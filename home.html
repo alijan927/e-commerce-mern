@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopEasy - E-commerce Platform</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+     <!-- Add this FIRST -->
+<script src="js/api.js"></script>
+<!-- Featured Products Section -->
+<section class="featured-section" style="padding: 40px 20px; max-width: 1200px; margin: 0 auto;">
+  <h2 style="text-align: center; margin-bottom: 30px; font-size: 2rem;">Featured Products</h2>
+  
+  <!-- Products Grid Container -->
+  <div id="featured-container" style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;"></div>
+</section>
+
+<!-- JavaScript Files Links (body tag khatam hone se pehle) -->
+<script src="js/api.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/home.js"></script>
+
+<!-- Then your other JS files -->
+<script src="js/auth.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/products.js"></script>
+    <style>
+        :root {
+            --primary-color: #4e54c8;
+            --secondary-color: #8f94fb;
+            --dark-color: #333;
+            --light-color: #f8f9fa;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--dark-color);
+            padding-top: 76px;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.8rem;
+            color: var(--primary-color) !important;
+        }
+        
+        .hero-section {
+            background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+            color: white;
+            padding: 80px 0;
+            margin-bottom: 40px;
+        }
+        
+        .card {
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: none;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0,0,0,0.2);
+        }
+        
+        .product-image {
+            height: 200px;
+            object-fit: cover;
+            width: 100%;
+        }
+        
+        .price {
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: #3d43b5;
+            border-color: #3d43b5;
+        }
+        
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            font-size: 0.7rem;
+        }
+        
+        .cart-sidebar {
+            width: 350px;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            right: -400px;
+            background-color: white;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+            transition: right 0.3s;
+            z-index: 1050;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        
+        .cart-sidebar.active {
+            right: 0;
+        }
+        
+        .cart-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1040;
+            display: none;
+        }
+        
+        .cart-overlay.active {
+            display: block;
+        }
+        
+        .quantity-btn {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+        
+        .quantity-input {
+            width: 50px;
+            text-align: center;
+        }
+        
+        .dashboard-nav {
+            background-color: #f8f9fa;
+            border-right: 1px solid #dee2e6;
+            min-height: calc(100vh - 76px);
+        }
+        
+        .dashboard-content {
+            padding: 30px;
+        }
+        
+        .stats-card {
+            border-radius: 10px;
+            color: white;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .stats-card.total-orders {
+            background: linear-gradient(to right, #4e54c8, #8f94fb);
+        }
+        
+        .stats-card.total-revenue {
+            background: linear-gradient(to right, #00b09b, #96c93d);
+        }
+        
+        .stats-card.total-users {
+            background: linear-gradient(to right, #ff7e5f, #feb47b);
+        }
+        
+        .stats-card.total-products {
+            background: linear-gradient(to right, #8e2de2, #4a00e0);
+        }
+        
+        .login-container {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+        
+        .payment-method {
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .payment-method:hover {
+            border-color: var(--primary-color);
+            background-color: rgba(78, 84, 200, 0.05);
+        }
+        
+        .payment-method.selected {
+            border-color: var(--primary-color);
+            background-color: rgba(78, 84, 200, 0.1);
+        }
+        
+        .footer {
+            background-color: var(--dark-color);
+            color: white;
+            padding: 40px 0 20px;
+            margin-top: 60px;
+        }
+        
+        @media (max-width: 768px) {
+            .cart-sidebar {
+                width: 100%;
+                right: -100%;
+            }
+            
+            .cart-sidebar.active {
+                right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" href="home.html">
+                <i class="fas fa-shopping-bag me-2"></i>ShopEasy
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="home.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="products.html">Products</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="categories.html">Categories</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="about.html">About</a>
+                    </li>
+                </ul>
+                
+                <div class="d-flex align-items-center">
+                    <!-- User dropdown for logged in users -->
+                    <div class="dropdown me-3" id="userDropdown" style="display: none;">
+                        <button class="btn btn-outline-primary dropdown-toggle" type="button" id="userMenu" data-bs-toggle="dropdown">
+                            <i class="fas fa-user me-2"></i><span id="userName">John Doe</span>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="profile.html"><i class="fas fa-user-circle me-2"></i>Profile</a></li>
+                            <li><a class="dropdown-item" href="orders.html"><i class="fas fa-box me-2"></i>Orders</a></li>
+                            <li><a class="dropdown-item" href="#" id="adminDashboardLink" style="display: none;"><i class="fas fa-chart-line me-2"></i>Admin Dashboard</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" id="logoutBtn"><i class="fas fa-sign-out-alt me-2"></i>Logout</a></li>
+                        </ul>
+                    </div>
+                    
+                    <!-- Login/Signup buttons for non-logged in users -->
+                    <div id="authButtons">
+                        <a href="#" class="btn btn-outline-primary me-2" data-bs-toggle="modal" data-bs-target="#loginModal">Login</a>
+                        <a href="#" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#signupModal">Sign Up</a>
+                    </div>
+                    
+                    <!-- Cart button -->
+                    <div class="position-relative">
+                        <button class="btn btn-outline-primary" id="cartToggle">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="cart-badge badge bg-danger rounded-circle" id="cartCount">0</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Cart Sidebar -->
+    <div class="cart-overlay" id="cartOverlay"></div>
+    <div class="cart-sidebar" id="cartSidebar">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4><i class="fas fa-shopping-cart me-2"></i>Shopping Cart</h4>
+            <button class="btn btn-sm btn-outline-secondary" id="closeCart">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <div id="cartItems">
+            <!-- Cart items will be dynamically added here -->
+            <div class="text-center text-muted py-5">
+                <i class="fas fa-shopping-cart fa-3x mb-3"></i>
+                <p>Your cart is empty</p>
+            </div>
+        </div>
+        
+        <div class="cart-summary mt-4 pt-4 border-top">
+            <div class="d-flex justify-content-between mb-2">
+                <span>Subtotal:</span>
+                <span id="cartSubtotal">$0.00</span>
+            </div>
+            <div class="d-flex justify-content-between mb-3">
+                <span>Shipping:</span>
+                <span id="cartShipping">$5.00</span>
+            </div>
+            <div class="d-flex justify-content-between mb-4 fw-bold">
+                <span>Total:</span>
+                <span id="cartTotal">$5.00</span>
+            </div>
+            
+            <button class="btn btn-primary w-100 mb-3" id="checkoutBtn">Proceed to Checkout</button>
+            <button class="btn btn-outline-secondary w-100" id="continueShopping">Continue Shopping</button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container-fluid" id="mainContent">
+        <!-- Home Page -->
+        <section id="homePage">
+            <!-- Hero Section -->
+            <div class="hero-section text-center">
+                <div class="container">
+                    <h1 class="display-4 fw-bold mb-4">Shop the Latest Trends</h1>
+                    <p class="lead mb-4">Discover amazing products at great prices. Free shipping on orders over $50!</p>
+                    <a href="products.html" class="btn btn-light btn-lg">Shop Now</a>
+                </div>
+            </div>
+            
+            <!-- Featured Products -->
+            <div class="container" id="products">
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <h2 class="mb-4">Featured Products</h2>
+                    </div>
+                </div>
+                
+                <div class="row" id="featuredProducts">
+                    <!-- Products will be dynamically loaded here -->
+                </div>
+            </div>
+        </section>
+        
+        <!-- Checkout Page (hidden by default) -->
+        <section id="checkoutPage" style="display: none;">
+            <div class="container py-5">
+                <div class="row">
+                    <div class="col-12">
+                        <h2 class="mb-4">Checkout</h2>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <!-- Shipping Address -->
+                                <div class="card mb-4">
+                                    <div class="card-header bg-light">
+                                        <h5 class="mb-0">Shipping Address</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">First Name</label>
+                                                <input type="text" class="form-control" id="firstName" value="John">
+                                            </div>
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">Last Name</label>
+                                                <input type="text" class="form-control" id="lastName" value="Doe">
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Address</label>
+                                            <input type="text" class="form-control" id="address" value="123 Main Street">
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6 mb-3">
+                                                <label class="form-label">City</label>
+                                                <input type="text" class="form-control" id="city" value="New York">
+                                            </div>
+                                            <div class="col-md-4 mb-3">
+                                                <label class="form-label">State</label>
+                                                <select class="form-select" id="state">
+                                                    <option selected>New York</option>
+                                                    <option>California</option>
+                                                    <option>Texas</option>
+                                                    <option>Florida</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-2 mb-3">
+                                                <label class="form-label">ZIP</label>
+                                                <input type="text" class="form-control" id="zip" value="10001">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Payment Method -->
+                                <div class="card mb-4">
+                                    <div class="card-header bg-light">
+                                        <h5 class="mb-0">Payment Method</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="payment-method" data-method="credit-card">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="paymentMethod" id="creditCard" checked>
+                                                <label class="form-check-label d-flex align-items-center" for="creditCard">
+                                                    <i class="fas fa-credit-card fa-2x me-3 text-primary"></i>
+                                                    <div>
+                                                        <h6 class="mb-1">Credit/Debit Card</h6>
+                                                        <p class="text-muted mb-0">Pay with your credit or debit card</p>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                            
+                                            <div class="mt-3" id="creditCardForm">
+                                                <div class="row">
+                                                    <div class="col-12 mb-3">
+                                                        <label class="form-label">Card Number</label>
+                                                        <input type="text" class="form-control" placeholder="1234 5678 9012 3456">
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label class="form-label">Expiry Date</label>
+                                                        <input type="text" class="form-control" placeholder="MM/YY">
+                                                    </div>
+                                                    <div class="col-md-6 mb-3">
+                                                        <label class="form-label">CVV</label>
+                                                        <input type="text" class="form-control" placeholder="123">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="payment-method mt-3" data-method="paypal">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="paymentMethod" id="paypal">
+                                                <label class="form-check-label d-flex align-items-center" for="paypal">
+                                                    <i class="fab fa-paypal fa-2x me-3 text-primary"></i>
+                                                    <div>
+                                                        <h6 class="mb-1">PayPal</h6>
+                                                        <p class="text-muted mb-0">Pay securely with your PayPal account</p>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="payment-method mt-3" data-method="cod">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="radio" name="paymentMethod" id="cod">
+                                                <label class="form-check-label d-flex align-items-center" for="cod">
+                                                    <i class="fas fa-money-bill-wave fa-2x me-3 text-primary"></i>
+                                                    <div>
+                                                        <h6 class="mb-1">Cash on Delivery</h6>
+                                                        <p class="text-muted mb-0">Pay when you receive your order</p>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Order Summary -->
+                            <div class="col-md-4">
+                                <div class="card">
+                                    <div class="card-header bg-light">
+                                        <h5 class="mb-0">Order Summary</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="checkoutItems">
+                                            <!-- Checkout items will be added here -->
+                                        </div>
+                                        
+                                        <div class="d-flex justify-content-between mt-3">
+                                            <span>Subtotal</span>
+                                            <span id="checkoutSubtotal">$0.00</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span>Shipping</span>
+                                            <span id="checkoutShipping">$5.00</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between mt-3 fw-bold">
+                                            <span>Total</span>
+                                            <span id="checkoutTotal">$0.00</span>
+                                        </div>
+                                        
+                                        <button class="btn btn-primary w-100 mt-4" id="placeOrderBtn">Place Order</button>
+                                        <button class="btn btn-outline-secondary w-100 mt-2" id="backToCartBtn">Back to Cart</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Admin Dashboard (hidden by default) -->
+        <section id="adminDashboard" style="display: none;">
+            <div class="container-fluid">
+                <div class="row">
+                    <!-- Sidebar -->
+                    <div class="col-md-3 col-lg-2 px-0 dashboard-nav">
+                        <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-4">
+                            <h4 class="mb-4"><i class="fas fa-chart-line me-2"></i>Admin Panel</h4>
+                            <ul class="nav nav-pills flex-column mb-5 w-100" id="adminMenu">
+                                <li class="nav-item">
+                                    <a href="#adminDashboard" class="nav-link active" data-section="dashboard">
+                                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="#adminProducts" class="nav-link" data-section="products">
+                                        <i class="fas fa-box me-2"></i>Products
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="#adminOrders" class="nav-link" data-section="orders">
+                                        <i class="fas fa-shopping-cart me-2"></i>Orders
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="#adminUsers" class="nav-link" data-section="users">
+                                        <i class="fas fa-users me-2"></i>Users
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="#adminSettings" class="nav-link" data-section="settings">
+                                        <i class="fas fa-cog me-2"></i>Settings
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <!-- Main Content -->
+                    <div class="col-md-9 col-lg-10 dashboard-content">
+                        <!-- Dashboard Stats -->
+                        <div id="adminDashboardContent">
+                            <h2 class="mb-4">Dashboard Overview</h2>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="stats-card total-orders">
+                                        <h5>Total Orders</h5>
+                                        <h2>1,254</h2>
+                                        <p><i class="fas fa-arrow-up me-1"></i>12% from last month</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="stats-card total-revenue">
+                                        <h5>Total Revenue</h5>
+                                        <h2>$24,580</h2>
+                                        <p><i class="fas fa-arrow-up me-1"></i>18% from last month</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="stats-card total-users">
+                                        <h5>Total Users</h5>
+                                        <h2>3,842</h2>
+                                        <p><i class="fas fa-arrow-up me-1"></i>8% from last month</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="stats-card total-products">
+                                        <h5>Total Products</h5>
+                                        <h2>156</h2>
+                                        <p><i class="fas fa-arrow-up me-1"></i>5% from last month</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Recent Orders -->
+                            <div class="card mt-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Recent Orders</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>Order ID</th>
+                                                    <th>Customer</th>
+                                                    <th>Date</th>
+                                                    <th>Amount</th>
+                                                    <th>Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <tr>
+                                                    <td>#ORD-7852</td>
+                                                    <td>John Smith</td>
+                                                    <td>Oct 15, 2023</td>
+                                                    <td>$245.99</td>
+                                                    <td><span class="badge bg-success">Delivered</span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>#ORD-7851</td>
+                                                    <td>Jane Doe</td>
+                                                    <td>Oct 14, 2023</td>
+                                                    <td>$128.50</td>
+                                                    <td><span class="badge bg-warning">Processing</span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>#ORD-7850</td>
+                                                    <td>Robert Johnson</td>
+                                                    <td>Oct 13, 2023</td>
+                                                    <td>$89.99</td>
+                                                    <td><span class="badge bg-primary">Shipped</span></td>
+                                                </tr>
+                                                <tr>
+                                                    <td>#ORD-7849</td>
+                                                    <td>Emily Davis</td>
+                                                    <td>Oct 12, 2023</td>
+                                                    <td>$67.25</td>
+                                                    <td><span class="badge bg-danger">Cancelled</span></td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Other Admin Sections (hidden by default) -->
+                        <div id="adminProducts" style="display: none;">
+                            <h2 class="mb-4">Product Management</h2>
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between mb-4">
+                                        <h5 class="card-title mb-0">All Products</h5>
+                                        <button class="btn btn-primary"><i class="fas fa-plus me-2"></i>Add Product</button>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-hover">
+                                            <thead>
+                                                <tr>
+                                                    <th>ID</th>
+                                                    <th>Product</th>
+                                                    <th>Category</th>
+                                                    <th>Price</th>
+                                                    <th>Stock</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="adminProductsTable">
+                                                <!-- Products will be dynamically added here -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="adminOrders" style="display: none;">
+                            <h2 class="mb-4">Order Management</h2>
+                            <p>Order management content goes here.</p>
+                        </div>
+                        
+                        <div id="adminUsers" style="display: none;">
+                            <h2 class="mb-4">User Management</h2>
+                            <p>User management content goes here.</p>
+                        </div>
+                        
+                        <div id="adminSettings" style="display: none;">
+                            <h2 class="mb-4">Settings</h2>
+                            <p>Settings content goes here.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Order Confirmation Modal -->
+        <div class="modal fade" id="orderConfirmationModal" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title text-success"><i class="fas fa-check-circle me-2"></i>Order Placed Successfully!</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <i class="fas fa-check-circle fa-5x text-success mb-4"></i>
+                        <h4 class="mb-3">Thank You for Your Order!</h4>
+                        <p>Your order has been placed successfully. You will receive a confirmation email shortly.</p>
+                        <p class="mb-0">Order ID: <strong>#ORD-7853</strong></p>
+                    </div>
+                    <div class="modal-footer justify-content-center">
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="continueShoppingAfterOrder">Continue Shopping</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal fade" id="loginModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Login to Your Account</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="loginForm">
+                        <div class="mb-3">
+                            <label for="loginEmail" class="form-label">Email address</label>
+                            <input type="email" class="form-control" id="loginEmail" placeholder="name@example.com" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="loginPassword" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="loginPassword" placeholder="Enter your password" required>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="rememberMe">
+                            <label class="form-check-label" for="rememberMe">Remember me</label>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Login</button>
+                        </div>
+                    </form>
+                    <div class="text-center mt-3">
+                        <p class="mb-0">Don't have an account? <a href="#" class="text-primary" data-bs-toggle="modal" data-bs-target="#signupModal" data-bs-dismiss="modal">Sign Up</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Signup Modal -->
+    <div class="modal fade" id="signupModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create New Account</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="signupForm">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="signupFirstName" class="form-label">First Name</label>
+                                <input type="text" class="form-control" id="signupFirstName" placeholder="John" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="signupLastName" class="form-label">Last Name</label>
+                                <input type="text" class="form-control" id="signupLastName" placeholder="Doe" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="signupEmail" class="form-label">Email address</label>
+                            <input type="email" class="form-control" id="signupEmail" placeholder="name@example.com" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="signupPassword" class="form-label">Password</label>
+                            <input type="password" class="form-control" id="signupPassword" placeholder="Create a password" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmPassword" class="form-label">Confirm Password</label>
+                            <input type="password" class="form-control" id="confirmPassword" placeholder="Confirm your password" required>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="agreeTerms" required>
+                            <label class="form-check-label" for="agreeTerms">I agree to the <a href="#" class="text-primary">Terms and Conditions</a></label>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">Create Account</button>
+                        </div>
+                    </form>
+                    <div class="text-center mt-3">
+                        <p class="mb-0">Already have an account? <a href="#" class="text-primary" data-bs-toggle="modal" data-bs-target="#loginModal" data-bs-dismiss="modal">Login</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <h5 class="mb-3"><i class="fas fa-shopping-bag me-2"></i>ShopEasy</h5>
+                    <p>Your one-stop destination for all your shopping needs. Quality products at affordable prices with fast delivery.</p>
+                </div>
+                <div class="col-md-2 mb-4">
+                    <h5 class="mb-3">Quick Links</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="home.html" class="text-white-50 text-decoration-none">Home</a></li>
+                        <li class="mb-2"><a href="products.html" class="text-white-50 text-decoration-none">Products</a></li>
+                        <li class="mb-2"><a href="about.html" class="text-white-50 text-decoration-none">About Us</a></li>
+                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h5 class="mb-3">Customer Service</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">FAQs</a></li>
+                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">Shipping Policy</a></li>
+                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">Returns & Refunds</a></li>
+                        <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3 mb-4">
+                    <h5 class="mb-3">Contact Us</h5>
+                    <ul class="list-unstyled">
+                        <li class="mb-2"><i class="fas fa-map-marker-alt me-2"></i> 123 Main Street, New York, NY</li>
+                        <li class="mb-2"><i class="fas fa-phone me-2"></i> (123) 456-7890</li>
+                        <li class="mb-2"><i class="fas fa-envelope me-2"></i> info@shopeasy.com</li>
+                    </ul>
+                </div>
+            </div>
+            <hr class="bg-light">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 2023 ShopEasy. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="#" class="text-white me-3"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-white me-3"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-white me-3"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="text-white"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script>
+        // Product Data
+        const products = [
+            {
+                id: 1,
+                name: "Wireless Bluetooth Headphones",
+                category: "Electronics",
+                price: 89.99,
+                image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8aGVhZHBob25lc3xlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60",
+                description: "High-quality wireless headphones with noise cancellation.",
+                stock: 15
+            },
+            {
+                id: 2,
+                name: "Smart Watch Series 5",
+                category: "Electronics",
+                price: 249.99,
+                image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cHJvZHVjdHxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60",
+                description: "Latest smart watch with fitness tracking and heart rate monitor.",
+                stock: 8
+            },
+            {
+                id: 3,
+                name: "Men's Running Shoes",
+                category: "Fashion",
+                price: 79.99,
+                image: "https://images.unsplash.com/photo-1549298916-b41d501d3772?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8c2hvZXN8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60",
+                description: "Comfortable running shoes with cushioned soles.",
+                stock: 22
+            },
+            {
+                id: 4,
+                name: "Women's Handbag",
+                category: "Fashion",
+                price: 65.50,
+                image: "https://images.unsplash.com/photo-1584917865442-de89df76afd3?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8aGFuZGJhZ3xlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60",
+                description: "Stylish leather handbag with multiple compartments.",
+                stock: 12
+            },
+            {
+                id: 5,
+                name: "Kitchen Blender",
+                category: "Home & Kitchen",
+                price: 49.99,
+                image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YmxlbmRlcnxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60",
+                description: "Powerful blender for smoothies and food processing.",
+                stock: 18
+            },
+            {
+                id: 6,
+                name: "Yoga Mat",
+                category: "Sports",
+                price: 29.99,
+                image: "https://images.unsplash.com/photo-1599901860904-17e6ed7083a0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8eW9nYSUyMG1hdHxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=500&q=60",
+                description: "Non-slip yoga mat with carrying strap.",
+                stock: 25
+            },
+            {
+                id: 7,
+                name: "Desk Lamp",
+                category: "Home & Office",
+                price: 35.75,
+                image: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8ZGVzayUyMGxhbXB8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60",
+                description: "LED desk lamp with adjustable brightness.",
+                stock: 14
+            },
+            {
+                id: 8,
+                name: "Backpack",
+                category: "Fashion",
+                price: 45.99,
+                image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8YmFja3BhY2t8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&w=500&q=60",
+                description: "Durable backpack with laptop compartment.",
+                stock: 20
+            }
+        ];
+
+        // Cart Data
+        let cart = [];
+        let currentUser = null;
+        let isAdmin = false;
+
+        // DOM Elements
+        const featuredProductsContainer = document.getElementById('featuredProducts');
+        const cartItemsContainer = document.getElementById('cartItems');
+        const cartCountElement = document.getElementById('cartCount');
+        const cartSubtotalElement = document.getElementById('cartSubtotal');
+        const cartTotalElement = document.getElementById('cartTotal');
+        const cartSidebar = document.getElementById('cartSidebar');
+        const cartOverlay = document.getElementById('cartOverlay');
+        const cartToggle = document.getElementById('cartToggle');
+        const closeCart = document.getElementById('closeCart');
+        const continueShopping = document.getElementById('continueShopping');
+        const checkoutBtn = document.getElementById('checkoutBtn');
+        const placeOrderBtn = document.getElementById('placeOrderBtn');
+        const backToCartBtn = document.getElementById('backToCartBtn');
+        const continueShoppingAfterOrder = document.getElementById('continueShoppingAfterOrder');
+        const checkoutItemsContainer = document.getElementById('checkoutItems');
+        const checkoutSubtotalElement = document.getElementById('checkoutSubtotal');
+        const checkoutTotalElement = document.getElementById('checkoutTotal');
+        const paymentMethods = document.querySelectorAll('.payment-method');
+        const loginForm = document.getElementById('loginForm');
+        const signupForm = document.getElementById('signupForm');
+        const authButtons = document.getElementById('authButtons');
+        const userDropdown = document.getElementById('userDropdown');
+        const adminDashboardLink = document.getElementById('adminDashboardLink');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const adminProductsTable = document.getElementById('adminProductsTable');
+        const adminMenuItems = document.querySelectorAll('#adminMenu a');
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load products
+            loadProducts();
+            
+            // Load admin products table
+            loadAdminProductsTable();
+            
+            // Update cart count
+            updateCartCount();
+            
+            // Load cart from localStorage if available
+            const savedCart = localStorage.getItem('shopEasyCart');
+            if (savedCart) {
+                cart = JSON.parse(savedCart);
+                updateCartDisplay();
+            }
+            
+            // Check if user is logged in
+            const savedUser = localStorage.getItem('shopEasyUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                isAdmin = currentUser.email === 'admin@shopeasy.com';
+                updateUserInterface();
+            }
+        });
+
+        // Load products to the featured products section
+        // New way - getting real products from backend
+        async function loadProducts() {
+                try {
+                    // Get products from backend
+                    const products = await getProducts();
+
+                    // Display products
+                    products.forEach(product => {
+                        // Create product card HTML
+                        const productCard = `
+                            <div class="col-md-3 mb-4">
+                                <div class="card">
+                                    <img src="${product.image}" class="card-img-top" alt="${product.name}">
+                                    <div class="card-body">
+                                        <h5 class="card-title">${product.name}</h5>
+                                        <p class="card-text">$${product.price}</p>
+                                        <button onclick="addToCart('${product._id}')" class="btn btn-primary">
+                                            Add to Cart
+                                                   </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        document.getElementById('productsContainer').innerHTML += productCard;
+                    });
+
+                } 
+                catch (error) {
+                    console.error('Error loading products:', error);
+                               showToast('Failed to load products', 'error');
+                }
+        }           
+
+        // Load admin products table
+        function loadAdminProductsTable() {
+            adminProductsTable.innerHTML = '';
+            
+            products.forEach(product => {
+                const row = `
+                    <tr>
+                        <td>${product.id}</td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <img src="${product.image}" class="rounded me-3" width="50" height="50" alt="${product.name}">
+                                <div>
+                                    <h6 class="mb-0">${product.name}</h6>
+                                    <small class="text-muted">${product.description.substring(0, 50)}...</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${product.category}</td>
+                        <td>$${product.price.toFixed(2)}</td>
+                        <td>
+                            ${product.stock > 10 ? 
+                                `<span class="badge bg-success">${product.stock} in stock</span>` : 
+                                product.stock > 0 ? 
+                                    `<span class="badge bg-warning">${product.stock} in stock</span>` : 
+                                    `<span class="badge bg-danger">Out of stock</span>`
+                            }
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary me-1"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-outline-danger"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+                
+                adminProductsTable.innerHTML += row;
+            });
+        }
+
+        // Add product to cart
+        // New way - using backend cart
+        async function addToCart(productId, quantity = 1) {
+            // Check if user is logged in
+            const user = getCurrentUser();
+            if (!user) {
+                alert('Please login to add items to cart');
+                const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+                loginModal.show();
+                return;
+            }
+
+            try {
+                await addToCart(productId, quantity);
+                showToast('Product added to cart!');
+                updateCartCount(); // Update the cart icon number
+            } 
+            catch (error) {
+                alert(error.message);
+            }
+        }
+
+        // Update cart count in the navbar
+        function updateCartCount() {
+            const totalItems = cart.reduce((total, item) => total + item.quantity, 0);
+            cartCountElement.textContent = totalItems;
+            
+            // Show/hide badge
+            if (totalItems > 0) {
+                cartCountElement.style.display = 'block';
+            } else {
+                cartCountElement.style.display = 'none';
+            }
+        }
+
+        // Update cart display in sidebar
+        // New way - getting cart from backend
+        async function updateCartDisplay() {
+            try {
+                const cart = await getCart();
+
+                if (!cart.items || cart.items.length === 0) {
+                    cartItemsContainer.innerHTML = '<p>Your cart is empty</p>';
+                    return;
+                }
+
+                // Display cart items
+                cart.items.forEach(item => {
+                           const cartItem = `
+                        <div class="cart-item">
+                            <img src="${item.product.image}" width="50">
+                            <h6>${item.product.name}</h6>
+                            <span>$${item.price} x ${item.quantity}</span>
+                            <button onclick="removeFromCart('${item.product._id}')">Remove</button>
+                        </div>
+                    `;
+                    cartItemsContainer.innerHTML += cartItem;
+                });
+
+                // Update totals
+                document.getElementById('cartSubtotal').textContent = `$${cart.totalAmount}`;
+
+            } catch (error) {
+                       console.error('Error loading cart:', error);
+            }
+        }
+            // Clear current cart items
+            cartItemsContainer.innerHTML = '';{
+            
+            if (cart.length === 0) {
+                cartItemsContainer.innerHTML = `
+                    <div class="text-center text-muted py-5">
+                        <i class="fas fa-shopping-cart fa-3x mb-3"></i>
+                        <p>Your cart is empty</p>
+                    </div>
+                `;
+                
+                cartSubtotalElement.textContent = '$0.00';
+                cartTotalElement.textContent = '$5.00';
+                checkoutBtn.disabled = true;
+                return;
+            }
+            
+            let subtotal = 0;
+            
+            // Add each cart item
+            cart.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                subtotal += itemTotal;
+                
+                const cartItem = `
+                    <div class="cart-item mb-3 pb-3 border-bottom" data-id="${item.id}">
+                        <div class="d-flex">
+                            <div class="flex-shrink-0">
+                                <img src="${item.image}" alt="${item.name}" width="70" height="70" class="rounded">
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6 class="mb-1">${item.name}</h6>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <button class="btn btn-sm btn-outline-secondary quantity-btn decrease-quantity" data-id="${item.id}">
+                                            <i class="fas fa-minus"></i>
+                                        </button>
+                                        <input type="text" class="form-control quantity-input mx-2" value="${item.quantity}" readonly>
+                                        <button class="btn btn-sm btn-outline-secondary quantity-btn increase-quantity" data-id="${item.id}">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </div>
+                                    <div class="text-end">
+                                        <div class="price">$${itemTotal.toFixed(2)}</div>
+                                        <small class="text-muted">$${item.price.toFixed(2)} each</small>
+                                    </div>
+                                </div>
+                                <button class="btn btn-sm btn-link text-danger p-0 mt-2 remove-item" data-id="${item.id}">
+                                    <i class="fas fa-trash me-1"></i>Remove
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                cartItemsContainer.innerHTML += cartItem;
+            });
+            
+            // Calculate shipping (free for orders over $50)
+            const shipping = subtotal >= 50 ? 0 : 5;
+            const total = subtotal + shipping;
+            
+            // Update cart totals
+            cartSubtotalElement.textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('cartShipping').textContent = shipping === 0 ? 'FREE' : `$${shipping.toFixed(2)}`;
+            cartTotalElement.textContent = `$${total.toFixed(2)}`;
+            
+            // Enable checkout button
+            checkoutBtn.disabled = false;
+            
+            // Add event listeners to cart item buttons
+            document.querySelectorAll('.decrease-quantity').forEach(button => {
+                button.addEventListener('click', function() {
+                    const productId = parseInt(this.getAttribute('data-id'));
+                    updateCartItemQuantity(productId, -1);
+                });
+            });
+            
+            document.querySelectorAll('.increase-quantity').forEach(button => {
+                button.addEventListener('click', function() {
+                    const productId = parseInt(this.getAttribute('data-id'));
+                    updateCartItemQuantity(productId, 1);
+                });
+            });
+            
+            document.querySelectorAll('.remove-item').forEach(button => {
+                button.addEventListener('click', function() {
+                    const productId = parseInt(this.getAttribute('data-id'));
+                    removeFromCart(productId);
+                });
+            });
+        }
+
+        // Update cart item quantity
+        function updateCartItemQuantity(productId, change) {
+            const cartItem = cart.find(item => item.id === productId);
+            const product = products.find(p => p.id === productId);
+            
+            if (!cartItem || !product) return;
+            
+            const newQuantity = cartItem.quantity + change;
+            
+            if (newQuantity < 1) {
+                removeFromCart(productId);
+                return;
+            }
+            
+            if (newQuantity > product.stock) {
+                alert(`Sorry, only ${product.stock} items available in stock.`);
+                return;
+            }
+            
+            cartItem.quantity = newQuantity;
+            
+            // Update cart display and save to localStorage
+            updateCartCount();
+            updateCartDisplay();
+            localStorage.setItem('shopEasyCart', JSON.stringify(cart));
+        }
+
+        // Remove item from cart
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            
+            // Update cart display and save to localStorage
+            updateCartCount();
+            updateCartDisplay();
+            localStorage.setItem('shopEasyCart', JSON.stringify(cart));
+            
+            // Show message
+            const product = products.find(p => p.id === productId);
+            if (product) {
+                showToast(`${product.name} removed from cart.`);
+            }
+        }
+
+        // Update checkout display
+        function updateCheckoutDisplay() {
+            // Clear current checkout items
+            checkoutItemsContainer.innerHTML = '';
+            
+            if (cart.length === 0) {
+                return;
+            }
+            
+            let subtotal = 0;
+            
+            // Add each cart item to checkout
+            cart.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                subtotal += itemTotal;
+                
+                const checkoutItem = `
+                    <div class="d-flex justify-content-between mb-2">
+                        <div>
+                            <span>${item.name}</span>
+                            <small class="text-muted d-block">Qty: ${item.quantity}</small>
+                        </div>
+                        <span>$${itemTotal.toFixed(2)}</span>
+                    </div>
+                `;
+                
+                checkoutItemsContainer.innerHTML += checkoutItem;
+            });
+            
+            // Calculate shipping (free for orders over $50)
+            const shipping = subtotal >= 50 ? 0 : 5;
+            const total = subtotal + shipping;
+            
+            // Update checkout totals
+            checkoutSubtotalElement.textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('checkoutShipping').textContent = shipping === 0 ? 'FREE' : `$${shipping.toFixed(2)}`;
+            checkoutTotalElement.textContent = `$${total.toFixed(2)}`;
+        }
+
+        // Show toast notification
+        function showToast(message) {
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = 'toast align-items-center text-white bg-primary border-0 position-fixed';
+            toast.style.top = '20px';
+            toast.style.right = '20px';
+            toast.style.zIndex = '1060';
+            
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        <i class="fas fa-check-circle me-2"></i> ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            `;
+            
+            // Add toast to page
+            document.body.appendChild(toast);
+            
+            // Initialize Bootstrap toast
+            const bsToast = new bootstrap.Toast(toast, { delay: 3000 });
+            bsToast.show();
+            
+            // Remove toast after it's hidden
+            toast.addEventListener('hidden.bs.toast', function() {
+                document.body.removeChild(toast);
+            });
+        }
+
+        // Update user interface based on login status
+function updateUserInterface() {
+    const user = getCurrentUser();
+    
+    if (user) {
+        // User is logged in
+        document.getElementById('authButtons').style.display = 'none';
+        document.getElementById('userDropdown').style.display = 'block';
+        document.getElementById('userName').textContent = user.name;
+        
+        // Show admin link if user is admin
+        if (user.role === 'admin') {
+            document.getElementById('adminDashboardLink').style.display = 'block';
+        }
+    } else {
+        // User is not logged in
+        document.getElementById('authButtons').style.display = 'flex';
+        document.getElementById('userDropdown').style.display = 'none';
+    }
+}
+        // Event Listeners
+
+        // Cart toggle
+        cartToggle.addEventListener('click', function() {
+            cartSidebar.classList.add('active');
+            cartOverlay.classList.add('active');
+            updateCartDisplay();
+        });
+
+        closeCart.addEventListener('click', function() {
+            cartSidebar.classList.remove('active');
+            cartOverlay.classList.remove('active');
+        });
+
+        continueShopping.addEventListener('click', function() {
+            cartSidebar.classList.remove('active');
+            cartOverlay.classList.remove('active');
+        });
+
+        cartOverlay.addEventListener('click', function() {
+            cartSidebar.classList.remove('active');
+            cartOverlay.classList.remove('active');
+        });
+
+        // Checkout button
+        checkoutBtn.addEventListener('click', function() {
+            if (cart.length === 0) {
+                alert('Your cart is empty. Add some products before checking out.');
+                return;
+            }
+            
+            // Hide home page and show checkout page
+            document.getElementById('homePage').style.display = 'none';
+            document.getElementById('checkoutPage').style.display = 'block';
+            document.getElementById('adminDashboard').style.display = 'none';
+            
+            // Update checkout display
+            updateCheckoutDisplay();
+            
+            // Close cart sidebar
+            cartSidebar.classList.remove('active');
+            cartOverlay.classList.remove('active');
+        });
+
+        // Back to cart button
+        backToCartBtn.addEventListener('click', function() {
+            // Show home page and hide checkout page
+            document.getElementById('homePage').style.display = 'block';
+            document.getElementById('checkoutPage').style.display = 'none';
+            
+            // Open cart sidebar
+            cartSidebar.classList.add('active');
+            cartOverlay.classList.add('active');
+        });
+
+        // Place order button
+        placeOrderBtn.addEventListener('click', function() {
+            // Check if user is logged in
+            if (!currentUser) {
+                alert('Please login or create an account to place an order.');
+                const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal')) || 
+                                  new bootstrap.Modal(document.getElementById('loginModal'));
+                loginModal.show();
+                return;
+            }
+            
+            // Show order confirmation modal
+            const orderConfirmationModal = new bootstrap.Modal(document.getElementById('orderConfirmationModal'));
+            orderConfirmationModal.show();
+            
+            // Clear cart after order is placed
+            cart = [];
+            updateCartCount();
+            updateCartDisplay();
+            localStorage.removeItem('shopEasyCart');
+        });
+
+        // Continue shopping after order
+        continueShoppingAfterOrder.addEventListener('click', function() {
+            // Close modal
+            const orderConfirmationModal = bootstrap.Modal.getInstance(document.getElementById('orderConfirmationModal'));
+            orderConfirmationModal.hide();
+            
+            // Show home page
+            document.getElementById('homePage').style.display = 'block';
+            document.getElementById('checkoutPage').style.display = 'none';
+        });
+
+        // Payment method selection
+        paymentMethods.forEach(method => {
+            method.addEventListener('click', function() {
+                // Remove selected class from all methods
+                paymentMethods.forEach(m => m.classList.remove('selected'));
+                
+                // Add selected class to clicked method
+                this.classList.add('selected');
+                
+                // Check the radio button
+                const radioButton = this.querySelector('input[type="radio"]');
+                radioButton.checked = true;
+            });
+        });
+
+        // Login form submission
+        // New way - using real backend
+            loginForm.addEventListener('submit', async function(e) {
+             e.preventDefault();
+    
+                 const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+    
+              try {
+                   // Call the real backend
+                    const result = await loginUser(email, password);
+        
+                    // Show success message
+                    showToast(`Welcome back, ${result.user.name}!`);
+        
+                    // Close modal
+                    const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+                     loginModal.hide();
+        
+                    // Update UI to show logged in user
+                    updateUserInterface();
+        
+               } 
+                catch (error) {
+                    alert(error.message);
+                }
+            });
+
+        // Signup form submission
+        signupForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+    
+             const firstName = document.getElementById('signupFirstName').value;
+            const lastName = document.getElementById('signupLastName').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+                
+            if (password !== confirmPassword) {
+                alert('Passwords do not match');
+                return;
+            }
+            
+            try {
+                // Call the real backend
+                const result = await registerUser(`${firstName} ${lastName}`, email, password);
+                
+                showToast(`Account created! Welcome ${result.user.name}!`);
+                
+                const signupModal = bootstrap.Modal.getInstance(document.getElementById('signupModal'));
+                signupModal.hide();
+                
+                updateUserInterface();
+                
+            } catch (error) {
+                alert(error.message);
+            }
+        });
+
+        // Logout
+logoutBtn.addEventListener('click', function() {
+    logoutUser(); // This clears the token and user from localStorage
+    updateUserInterface();
+    showToast('You have been logged out');
+});
+        // Admin dashboard link
+        adminDashboardLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            if (!isAdmin) {
+                alert('You do not have permission to access the admin dashboard.');
+                return;
+            }
+            
+            // Show admin dashboard and hide other sections
+            document.getElementById('homePage').style.display = 'none';
+            document.getElementById('checkoutPage').style.display = 'none';
+            document.getElementById('adminDashboard').style.display = 'block';
+            
+            // Reset admin menu to show dashboard section
+            document.querySelectorAll('#adminMenu a').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.querySelector('#adminMenu a[data-section="dashboard"]').classList.add('active');
+            
+            // Show dashboard section
+            document.querySelectorAll('#adminDashboard > .dashboard-content > div').forEach(section => {
+                section.style.display = 'none';
+            });
+            document.getElementById('adminDashboardContent').style.display = 'block';
+        });
+
+        // Admin menu navigation
+        adminMenuItems.forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Update active menu item
+                adminMenuItems.forEach(link => link.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Get section to show
+                const section = this.getAttribute('data-section');
+                
+                // Hide all sections
+                document.querySelectorAll('#adminDashboard > .dashboard-content > div').forEach(div => {
+                    div.style.display = 'none';
+                });
+                
+                // Show selected section
+                document.getElementById(`admin${section.charAt(0).toUpperCase() + section.slice(1)}`).style.display = 'block';
+            });
+        });
+
+        // Navigation links for smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                
+                // Only handle internal links that point to IDs on the page
+                if (href !== '#' && document.querySelector(href)) {
+                    e.preventDefault();
+                    
+                    // If it's a section on the home page, show home page
+                    if (href === '#home' || href === '#products' || href === '#categories' || href === '#about') {
+                        document.getElementById('homePage').style.display = 'block';
+                        document.getElementById('checkoutPage').style.display = 'none';
+                        document.getElementById('adminDashboard').style.display = 'none';
+                    }
+                    
+                    // Scroll to the element
+                    const element = document.querySelector(href);
+                    const offset = 80;
+                    const elementPosition = element.getBoundingClientRect().top;
+                    const offsetPosition = elementPosition + window.pageYOffset - offset;
+                    
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
